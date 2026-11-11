@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#fff0f5">
+  <meta name="description" content="balloon｜給与管理アプリ">
+  <title>balloon｜給与管理</title>
+  <link rel="icon" type="image/svg+xml" href="./balloon-mark.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./balloon-theme.css">
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite"></div>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-art"><div class="auth-logo-mark"><img src="./balloon-mark.svg" alt=""></div><span class="brand-name">balloon<span class="brand-dot">.</span></span><span class="auth-tagline">給与管理</span><img class="auth-balloons" src="./balloon-friends.svg" alt=""></div>
+  <div class="auth-card">
+    <h1>ログイン</h1>
+    
+    <form id="loginForm" class="stack-md">
+      <label>メールアドレス<input type="email" id="email" placeholder="mail@example.com" autocomplete="username" required></label>
+      <label>パスワード<input type="password" id="password" placeholder="6文字以上" minlength="6" autocomplete="current-password" required></label>
+      <button class="btn btn-primary btn-full" type="submit" id="loginBtn">ログイン</button>
+      <button class="btn btn-secondary btn-full" type="button" id="registerBtn">新規アカウント作成</button>
+    </form>
+    <p id="authMessage" class="help error" role="alert"></p>
+    <div class="demo-divider"><span>または</span></div>
+    <button class="btn btn-demo btn-full" id="demoBtn" type="button">デモで試す</button>
+    <p class="fineprint">※デモのデータはこの端末に保存されます。</p>
+  </div>
+</section>
+
+<div id="appScreen" class="app hidden">
+  <header class="app-header"><div class="header-inner">
+    <div class="header-logo"><span class="logo-square"><img src="./balloon-mark.svg" alt=""></span><span>balloon</span></div>
+    <div class="header-right"><span id="modeBadge" class="mode-badge"></span><button class="logout" id="logoutBtn" type="button">ログアウト</button></div>
+  </div></header>
+  <div id="demoBanner" class="demo-banner hidden">デモモード（この端末のみ保存）</div>
+  <main class="app-main">
+    <section class="app-panel" id="homePanel">
+      <div class="page-heading decorated-heading"><h1>今月の給与</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
+      <div class="month-switch"><button type="button" id="prevMonth" aria-label="前月">‹</button><label class="month-label">表示月<input type="month" id="monthInput"></label><button type="button" id="nextMonth" aria-label="翌月">›</button></div>
+      <div class="hero-card"><img class="hero-balloons" src="./balloon-friends.svg" alt=""><div class="hero-top"><span>給与見込み</span><span class="hero-tag">10%控除後</span></div><div class="hero-amount" id="monthNet">¥0</div><div class="hero-stats"><div><small>出勤</small><strong id="monthDays">0日</strong></div><div><small>バック合計</small><strong id="monthBack">¥0</strong></div><div><small>遅刻・当欠罰金</small><strong id="monthFines">¥0</strong></div></div></div>
+      <section class="section-card"><div class="section-title-row"><div><h2>カレンダー</h2></div><button type="button" class="small-action" id="todayBtn">今月へ</button></div>
+        <div class="weekdays"><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span><span>日</span></div>
+        <div id="calendar" class="calendar"></div>
+        <div class="legend"><span><i class="dot shift-dot"></i>出勤</span><span><i class="dot absent-dot"></i>当日欠勤</span><span><i class="dot holiday-dot"></i>祝日</span></div>
+      </section>
+      <div class="section-title-row history-head"><div><h2>勤務履歴</h2></div><button type="button" class="small-action" id="csvBtn">CSV出力 ↓</button></div>
+      <div id="history" class="history"></div>
+      <div id="pendingBox" class="notice hidden"></div>
+      <p class="fineprint legal-note">※表示金額は概算です。</p>
+    </section>
+
+    <section class="app-panel hidden" id="entryPanel">
+      <div class="page-heading decorated-heading"><h1>勤務入力</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
+      <form id="dayForm">
+        <section class="section-card compact-card"><label class="big-label">日付<input id="workDate" type="date" required></label><div class="segmented" role="group" aria-label="勤務の区分"><button type="button" class="segment active" data-kind="shift">出勤</button><button type="button" class="segment" data-kind="absence">当欠</button></div></section>
+        <div id="shiftFields">
+          <section class="section-card"><div class="section-title-row"><h2>勤務時間</h2><span class="hint-chip">翌日OK</span></div><div class="form-grid"><label>出勤時間<input id="startTime" type="time" step="60" required></label><label>退勤時間<input id="endTime" type="time" step="60" required></label></div><div class="form-grid"><label>時給（円）<input id="hourlyRate" type="number" min="0" max="1000000" step="1" inputmode="numeric" placeholder="例 2000" required></label><label>遅刻（分）<input id="lateMinutes" type="number" min="0" max="1440" step="1" inputmode="numeric" value="0"></label></div><div class="quick-row"><span>遅刻を追加</span><button type="button" data-late="15">＋15分</button><button type="button" data-late="30">＋30分</button><button type="button" id="resetLate">クリア</button></div><p class="help">遅刻罰金：15分ごと300円（切り上げ）</p></section>
+          <section class="section-card"><div class="section-title-row"><h2>ドリンク・フード</h2><span class="hint-chip">タップで追加</span></div>
+            <div class="filter-row" role="group" aria-label="品目カテゴリ"><button type="button" class="filter active" data-cat="ドリンク">ドリンク</button><button type="button" class="filter" data-cat="フード">フード</button><button type="button" class="filter" data-cat="シャンパン">シャンパン</button></div>
+            <div id="quickMenu" class="quick-menu"></div>
+            <div id="selectedItems" class="selected-items"></div>
+            <p class="help">その他フードは品名・価格を入力</p>
+          </section>
+          <section class="section-card"><div class="section-title-row"><h2>中抜け同伴</h2><span class="hint-chip">1回 ¥2,000</span></div><div class="form-grid"><label>同伴回数<input id="escortCount" type="number" min="0" max="100" step="1" inputmode="numeric" value="0"></label><label>中抜け合計（分）<input id="escortMinutes" type="number" min="0" max="1440" step="1" inputmode="numeric" value="0"></label></div><p class="help">中抜け時間は勤務時間から除外</p></section>
+        </div>
+        <section class="section-card hidden" id="absenceFields"><h2>当日欠勤</h2><p class="muted">罰金は次回出勤日に反映</p><div class="absence-amount"><small>この当欠の罰金</small><strong id="absenceFineLabel">¥2,000</strong><span id="absenceDayHint">平日</span></div><label class="checkbox-line"><input type="checkbox" id="holidayOverride">祝日として扱う</label><p class="help" id="holidayHelp">土日祝：¥4,000／平日：¥2,000</p></section>
+        <section class="section-card"><label>メモ（任意）<textarea id="note" rows="2" maxlength="250" placeholder="メモを入力"></textarea></label><div class="form-actions"><button type="button" id="deleteDayBtn" class="btn btn-danger hidden">この日の記録を削除</button></div></section>
+        <div class="sticky-total"><div class="sticky-amount"><span id="previewLabel">見込み給与</span><strong id="previewNet">¥0</strong><small id="previewDetails">出退勤・時給を入力</small></div><button id="saveDayBtn" class="btn btn-primary" type="submit">保存</button></div>
+      </form>
+      <div class="section-card breakdown-card" id="breakdownCard"><div class="section-title-row"><h2>計算内訳</h2></div><div class="breakdown" id="breakdown"></div></div>
+    </section>
+
+    <section class="app-panel hidden" id="menuPanel">
+      <div class="page-heading decorated-heading"><h1>メニュー設定</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
+      <section class="section-card"><div class="section-title-row"><h2 id="menuFormTitle">メニューを追加</h2><button type="button" id="cancelMenuEdit" class="small-action hidden">キャンセル</button></div>
+        <form id="menuForm" class="stack-sm"><div class="form-grid"><label>種類<select id="menuCategory"><option>ドリンク</option><option>フード</option><option>シャンパン</option><option>その他</option></select></label><label>商品名<input id="menuName" maxlength="60" required placeholder="例 カクテル"></label></div><div class="form-grid"><label>販売価格（円）<input id="menuPrice" type="number" min="0" step="1" max="100000000" required></label><label>バック方式<select id="menuMode"><option value="rate">バック率（%）</option><option value="fixed">固定金額（円）</option></select></label></div><div class="form-grid"><label id="rateGroup">バック率（%）<input id="menuRate" type="number" min="0" max="100" step="0.1" value="20"></label><label id="fixedGroup" class="hidden">固定バック額（円）<input id="menuFixed" type="number" min="0" step="1" max="100000000"></label></div><label class="checkbox-line"><input type="checkbox" id="menuCustomPrice">登録時に金額を自由入力できる</label><label class="checkbox-line"><input type="checkbox" id="menuCustomName">登録時に商品名を自由入力できる</label><button class="btn btn-primary btn-full" id="saveMenuBtn" type="submit">＋ メニューを保存</button></form>
+      </section>
+      <section class="section-card"><div class="section-title-row"><h2>登録済みメニュー</h2><button type="button" class="small-action" id="restoreMenu">初期メニューを追加</button></div><div id="menuList"></div></section>
+    </section>
+
+    <section class="app-panel hidden" id="settingsPanel">
+      <div class="page-heading decorated-heading"><h1>設定</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
+      <section class="section-card"><h2>標準時給</h2><p class="muted">勤務入力時の初期値</p><form id="settingsForm" class="stack-sm"><label>時給（円）<input id="settingRate" type="number" min="0" max="1000000" step="1" inputmode="numeric" required></label><button type="submit" class="btn btn-primary">標準時給を保存</button></form></section>
+      <section class="section-card"><h2>計算ルール</h2><div class="rule-list"><div><b>勤務時間</b><span>出退勤 − 中抜け時間。15分単位で切り上げ</span></div><div><b>遅刻</b><span>15分につき300円、端数切り上げ</span></div><div><b>当欠</b><span>平日2,000円／土日祝4,000円、次の勤務日に反映</span></div><div><b>10%控除</b><span>時給＋バック−罰金 の合計から10%控除</span></div><div><b>保存</b><span>時給・メニュー単価は入力時の値を記録</span></div></div></section>
+      <section class="section-card"><h2>データについて</h2><p class="muted">アカウント別に保存／デモは端末内に保存</p><button type="button" id="demoReset" class="btn btn-danger hidden">デモの全データを消去</button></section>
+      <p class="fineprint legal-note">※罰金・控除などの給与ルールは法令に従ってご確認ください。</p>
+    </section>
+  </main>
+  <button type="button" id="floatingAdd" class="floating-add" aria-label="今日の勤務を追加">＋</button>
+  <nav class="bottom-nav" aria-label="メインメニュー"><button type="button" class="nav-item active" data-panel="home"><span>🏠</span>ホーム</button><button type="button" class="nav-item" data-panel="entry"><span>📝</span>日別入力</button><button type="button" class="nav-item" data-panel="menu"><span>🥂</span>メニュー</button><button type="button" class="nav-item" data-panel="settings"><span>⚙️</span>設定</button></nav>
+</div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

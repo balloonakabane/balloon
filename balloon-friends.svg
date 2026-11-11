@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 270" fill="none" aria-hidden="true">
+ <defs><linearGradient id="p" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFC0D9"/><stop offset="1" stop-color="#FA91BF"/></linearGradient><linearGradient id="v" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E4D5FF"/><stop offset="1" stop-color="#BEACF6"/></linearGradient><linearGradient id="y" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF0B7"/><stop offset="1" stop-color="#FFD67F"/></linearGradient></defs>
+ <!-- Thin floating strings -->
+ <path d="M85 139c-20 42-7 88 29 122M203 126c19 43 8 89-28 134M147 173c-13 30 12 57 1 88" stroke="#FFF7FB" stroke-width="2.5" stroke-dasharray="5 5" stroke-linecap="round"/>
+ <!-- Three balloons -->
+ <ellipse cx="88" cy="86" rx="49" ry="63" fill="url(#p)"/><path d="M88 149l-9 14h18l-9-14Z" fill="#ED85AF"/>
+ <ellipse cx="211" cy="73" rx="48" ry="60" fill="url(#v)"/><path d="M211 134l-9 13h18l-9-13Z" fill="#B8A1EE"/>
+ <ellipse cx="147" cy="122" rx="49" ry="65" fill="url(#y)"/><path d="M147 187l-9 13h18l-9-13Z" fill="#EFBF69"/>
+ <!-- Glossy highlights -->
+ <ellipse cx="68" cy="62" rx="10" ry="24" transform="rotate(19 68 62)" fill="white" opacity=".56"/>
+ <ellipse cx="192" cy="48" rx="9" ry="23" transform="rotate(19 192 48)" fill="white" opacity=".5"/>
+ <ellipse cx="126" cy="98" rx="9" ry="24" transform="rotate(17 126 98)" fill="white" opacity=".58"/>
+ <!-- Tiny cute faces -->
+ <path d="M78 91v3m20-3v3M199 78v3m20-3v3M137 125v3m20-3v3" stroke="#725876" stroke-width="3.5" stroke-linecap="round"/>
+ <path d="M83 103q5 6 11 0M204 91q6 6 11 0M142 137q5 5 11 0" stroke="#725876" stroke-width="2.5" stroke-linecap="round"/>
+ <ellipse cx="71" cy="100" rx="6" ry="3.5" fill="#EC7DA9" opacity=".4"/><ellipse cx="105" cy="100" rx="6" ry="3.5" fill="#EC7DA9" opacity=".4"/>
+ <ellipse cx="190" cy="87" rx="6" ry="3.5" fill="#E191C0" opacity=".38"/><ellipse cx="227" cy="87" rx="6" ry="3.5" fill="#E191C0" opacity=".38"/>
+ <ellipse cx="130" cy="134" rx="6" ry="3.5" fill="#EDAA79" opacity=".44"/><ellipse cx="164" cy="134" rx="6" ry="3.5" fill="#EDAA79" opacity=".44"/>
+ <!-- Decorative twinkles -->
+ <path d="M16 60c8 0 11-3 11-12 0 9 3 12 11 12-8 0-11 3-11 12 0-9-3-12-11-12ZM244 198c8 0 11-3 11-12 0 9 3 12 11 12-8 0-11 3-11 12 0-9-3-12-11-12Z" fill="#FFF8FF" opacity=".96"/>
+ <circle cx="39" cy="184" r="4" fill="#FFF7FD" opacity=".9"/><circle cx="274" cy="54" r="4" fill="#FFF7FD" opacity=".9"/>
+</svg>

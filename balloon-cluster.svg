@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 285 257" fill="none" aria-hidden="true">
+<path d="M66 114c-13 68 6 75 61 132M188 99c4 75-8 117-41 141M143 145c-2 44-5 72 1 95" stroke="#FFFAFB" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" opacity=".88"/>
+<ellipse cx="70" cy="88" rx="42" ry="54" fill="#FFB2CC"/><path d="M70 139l-8 11h16l-8-11Z" fill="#FFB2CC"/><ellipse cx="58" cy="70" rx="9" ry="22" fill="#FFEAF3" opacity=".65" transform="rotate(22 58 70)"/>
+<ellipse cx="190" cy="66" rx="48" ry="62" fill="#D5C3FF"/><path d="M190 128l-9 12h18l-9-12Z" fill="#D5C3FF"/><ellipse cx="176" cy="48" rx="10" ry="23" fill="white" opacity=".5" transform="rotate(22 176 48)"/>
+<ellipse cx="142" cy="121" rx="48" ry="57" fill="#FFE2A6"/><path d="M142 178l-9 11h18l-9-11Z" fill="#FFE2A6"/><ellipse cx="127" cy="102" rx="10" ry="22" fill="white" opacity=".6" transform="rotate(25 127 102)"/>
+<path d="M18 198h2m-1-1v2M245 151h2m-1-1v2M249 29h3m-1.5-1.5v3M14 16h2m-1-1v2" stroke="white" stroke-width="3" stroke-linecap="round"/><path d="M248 206c2-5 5-5 8 0 3-5 7-5 9 0 0 6-9 10-9 10s-8-4-8-10Z" fill="#FFF9FC" opacity=".86"/>
+</svg>

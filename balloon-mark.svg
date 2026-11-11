@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" fill="none" aria-label="balloon logo">
+ <path d="M28 49c-6 12-2 20 8 26M53 48c8 13 4 21-4 28M66 46c-3 10-5 16 0 26" stroke="#89738e" stroke-width="2.4" stroke-linecap="round"/>
+ <ellipse cx="26" cy="28" rx="17" ry="23" fill="#FF89AD" stroke="#FFF9F8" stroke-width="2"/><path d="M26 51l-4 7h8l-4-7Z" fill="#E66E98"/>
+ <ellipse cx="60" cy="24" rx="17" ry="22" fill="#B89BFA" stroke="#FFF9F8" stroke-width="2"/><path d="M60 46l-4 7h8l-4-7Z" fill="#9E81EB"/>
+ <ellipse cx="45" cy="38" rx="18" ry="23" fill="#FFD17E" stroke="#FFF9F8" stroke-width="2"/><path d="M45 61l-4 7h8l-4-7Z" fill="#F7BC64"/>
+ <ellipse cx="20" cy="19" rx="3" ry="8" fill="#FFE3EC" transform="rotate(20 20 19)"/><ellipse cx="54" cy="15" rx="3" ry="7" fill="#E7DDFE" transform="rotate(20 54 15)"/><ellipse cx="39" cy="29" rx="3" ry="8" fill="#FFF1D4" transform="rotate(20 39 29)"/>
+</svg>
