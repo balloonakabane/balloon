@@ -1,5 +1,5 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js';
-import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
 import {getFirestore,doc,setDoc,deleteDoc,collection,onSnapshot} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js';
 import {firebaseConfig} from './firebase-config.js';
 import {INITIAL_MENU,initialSettings,yen,unitBack,getWorkedMinutes,roundQuarter,lateFine,officialHoliday,isWeekend,dayName,absenceFine,shiftPay,createLedger,summarizeMonth} from './calculator.js';
@@ -18,7 +18,7 @@ let auth,db,toaster;
 function toast(message){$('toast').textContent=message;$('toast').classList.add('shown');clearTimeout(toaster);toaster=setTimeout(()=>$('toast').classList.remove('shown'),3300);}
 function friendlyError(error,otherwise='操作に失敗しました'){
   console.error(error);
-  const map={'auth/invalid-email':'メールアドレスを確認してください','auth/invalid-credential':'メールアドレスまたはパスワードが違います','auth/email-already-in-use':'このメールアドレスは登録済みです','auth/weak-password':'パスワードは6文字以上にしてください','auth/operation-not-allowed':'Firebaseでメール／パスワード認証を有効にしてください','permission-denied':'データの読み書き権限がありません。Firestoreルールを確認してください'};
+  const map={'auth/invalid-email':'メールアドレスを確認してください','auth/invalid-credential':'メールアドレスまたはパスワードが違います','auth/email-already-in-use':'このメールアドレスは登録済みです','auth/weak-password':'パスワードは8文字以上・英大文字・数字を含めてください','auth/password-does-not-meet-requirements':'パスワードは8文字以上・英大文字・数字を含めてください','auth/too-many-requests':'試行回数が多いため、時間をおいて再試行してください','auth/operation-not-allowed':'Firebaseでメール／パスワード認証を有効にしてください','permission-denied':'データの読み書き権限がありません。Firestoreルールを確認してください'};
   toast(map[error?.code]||otherwise);return map[error?.code]||otherwise;
 }
 function visibleApp(show){$('authScreen').classList.toggle('hidden',show);$('appScreen').classList.toggle('hidden',!show);}
@@ -36,6 +36,9 @@ function showModeBadge(){
   $('modeBadge').textContent=state.mode==='demo'?'デモ版':(state.user?.email||'ログイン中');
   $('demoBanner').classList.toggle('hidden',state.mode!=='demo');
   $('demoReset').classList.toggle('hidden',state.mode!=='demo');
+  $('accountSecurityCard').classList.toggle('hidden',state.mode!=='cloud');
+  $('accountEmail').textContent=state.mode==='cloud'?(state.user?.email||'登録メールアドレスを取得できません'):'デモモード';
+  $('accountSecurityMessage').textContent='';
 }
 function unsubscribe(){state.unsubscribeEntries?.();state.unsubscribeSettings?.();state.unsubscribeEntries=state.unsubscribeSettings=null;}
 function startDemo(){
@@ -304,22 +307,97 @@ function exportCsv(){
   const csv='\ufeff'+rows.map(row=>row.map(v=>{let s=String(v??'');if(/^[=+@\-\t\r]/.test(s)&&!/^\-?\d+(?:\.\d+)?$/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';}).join(',')).join('\r\n');
   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`balloon_${state.month}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
-async function submitAuth(register){
+// 新規登録だけにFirebaseで設定したパスワード条件を適用。
+// 既存アカウントのログインはクライアント側で強制しない。
+let authMode='login';
+function passwordCriteria(value){
+  return {length:value.length>=8,uppercase:/[A-Z]/.test(value),number:/[0-9]/.test(value)};
+}
+function updatePasswordRules(){
+  const criteria=passwordCriteria($('password').value);
+  document.querySelectorAll('[data-password-rule]').forEach(element=>{
+    element.classList.toggle('ok',Boolean(criteria[element.dataset.passwordRule]));
+  });
+  return Object.values(criteria).every(Boolean);
+}
+function setAuthMode(mode){
+  authMode=mode;
+  const registering=mode==='register';
+  $('authHeading').textContent=registering?'新規登録':'ログイン';
+  $('loginBtn').textContent=registering?'登録する':'ログイン';
+  $('registerBtn').textContent=registering?'ログインに戻る':'新規アカウント作成';
+  $('resetPasswordBtn').classList.toggle('hidden',registering);
+  $('passwordRules').classList.toggle('hidden',!registering);
+  $('confirmGroup').classList.toggle('hidden',!registering);
+  $('confirmPassword').required=registering;
+  $('password').minLength=registering?8:0;
+  $('password').autocomplete=registering?'new-password':'current-password';
+  $('password').placeholder=registering?'8文字以上・英大文字・数字':'パスワード';
+  $('password').value='';
+  $('confirmPassword').value='';
+  $('authMessage').textContent='';
+  updatePasswordRules();
+}
+async function submitAuth(){
   if(!$('loginForm').reportValidity())return;
-  if(!auth){$('authMessage').textContent='Firebase接続情報を設定するまでは、デモモードを利用できます。';return;}
-  $('authMessage').textContent='';$('loginBtn').disabled=$('registerBtn').disabled=true;
+  const registering=authMode==='register';
+  if(registering){
+    if(!updatePasswordRules()){
+      $('authMessage').textContent='8文字以上・英大文字・数字を含めてください';
+      $('password').focus();
+      return;
+    }
+    if($('password').value!==$('confirmPassword').value){
+      $('authMessage').textContent='確認用パスワードが一致しません';
+      $('confirmPassword').focus();
+      return;
+    }
+  }
+  if(!auth){$('authMessage').textContent='Firebaseの接続設定を確認してください';return;}
+  $('authMessage').textContent='';
+  $('loginBtn').disabled=$('registerBtn').disabled=true;
   try{
-    if(register)await createUserWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
+    if(registering)await createUserWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
     else await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);
-    $('password').value='';
-  }catch(e){$('authMessage').textContent=friendlyError(e,'ログインできませんでした');}
+    setAuthMode('login');
+  }catch(e){$('authMessage').textContent=friendlyError(e,registering?'登録できませんでした':'ログインできませんでした');}
   finally{$('loginBtn').disabled=$('registerBtn').disabled=false;}
 }
 function bind(){
-  $('loginForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(false);});
-  $('registerBtn').addEventListener('click',()=>submitAuth(true));
+  $('loginForm').addEventListener('submit',e=>{e.preventDefault();submitAuth();});
+  $('registerBtn').addEventListener('click',()=>{
+    setAuthMode(authMode==='login'?'register':'login');
+    $('email').focus();
+  });
+  $('password').addEventListener('input',()=>{
+    updatePasswordRules();
+    if($('authMessage').textContent) $('authMessage').textContent='';
+  });
+  $('confirmPassword').addEventListener('input',()=>{$('authMessage').textContent='';});
+  $('resetPasswordBtn').addEventListener('click',async()=>{
+    const email=$('email').value.trim();
+    if(!email){$('authMessage').textContent='先にメールアドレスを入力してください';$('email').focus();return;}
+    if(!$('email').checkValidity()){$('email').reportValidity();return;}
+    if(!auth){$('authMessage').textContent='Firebaseの接続設定を確認してください';return;}
+    $('resetPasswordBtn').disabled=true;
+    try{
+      await sendPasswordResetEmail(auth,email);
+      $('authMessage').textContent='パスワード再設定メールを送信しました';
+    }catch(error){
+      $('authMessage').textContent=friendlyError(error,'再設定メールを送信できませんでした');
+    }finally{$('resetPasswordBtn').disabled=false;}
+  });
+
+  $('showPasswordBtn').addEventListener('click',()=>{
+    const currentlyHidden=$('password').type==='password';
+    $('password').type=currentlyHidden?'text':'password';
+    $('confirmPassword').type=currentlyHidden?'text':'password';
+    $('showPasswordBtn').textContent=currentlyHidden?'隠す':'表示';
+    $('showPasswordBtn').setAttribute('aria-label',currentlyHidden?'パスワードを隠す':'パスワードを表示');
+    $('showPasswordBtn').setAttribute('aria-pressed',String(currentlyHidden));
+  });
   $('demoBtn').addEventListener('click',startDemo);
-  $('logoutBtn').addEventListener('click',async()=>{unsubscribe();if(state.mode==='cloud')try{await signOut(auth);}catch(e){friendlyError(e,'ログアウトに失敗しました');}state.mode='none';state.user=null;state.records=[];visibleApp(false);});
+  $('logoutBtn').addEventListener('click',async()=>{unsubscribe();if(state.mode==='cloud')try{await signOut(auth);}catch(e){friendlyError(e,'ログアウトに失敗しました');}state.mode='none';state.user=null;state.records=[];setAuthMode('login');visibleApp(false);});
   document.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('click',()=>showPanel(el.dataset.panel)));
   $('floatingAdd').addEventListener('click',()=>showEntry(today()));
   $('monthInput').addEventListener('change',()=>setMonth($('monthInput').value));
@@ -340,6 +418,21 @@ function bind(){
   $('cancelMenuEdit').addEventListener('click',resetMenuForm);
   $('restoreMenu').addEventListener('click',restoreMenu);
   $('settingsForm').addEventListener('submit',saveSettings);
+  $('accountResetPasswordBtn').addEventListener('click',async()=>{
+    const user=auth?.currentUser;
+    const email=user?.email;
+    const message=$('accountSecurityMessage');
+    if(state.mode!=='cloud'||!email){message.textContent='メールアドレスを確認できません。再ログインしてください。';return;}
+    if(!confirm(`${email} にパスワード再設定メールを送信しますか？`))return;
+    const button=$('accountResetPasswordBtn');
+    button.disabled=true;
+    message.textContent='';
+    try{
+      await sendPasswordResetEmail(auth,email);
+      message.textContent='再設定メールを送信しました。メール内のリンクから新しいパスワードを設定してください。';
+    }catch(error){message.textContent=friendlyError(error,'再設定メールを送信できませんでした');}
+    finally{button.disabled=false;}
+  });
   $('demoReset').addEventListener('click',()=>{if(!confirm('デモで入力した全データを削除しますか？'))return;localStorage.removeItem('paynote_demo_v2');startDemo();toast('デモデータを削除しました');});
 }
 function boot(){

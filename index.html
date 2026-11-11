@@ -14,19 +14,50 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./balloon-theme.css">
+  <style>
+    /* balloonの色味を維持したパスワード入力UI */
+    .password-field{position:relative}
+    .password-field input{padding-right:71px!important}
+    .password-toggle{position:absolute;right:9px;bottom:9px;border:1px solid #f1d7e6;
+      border-radius:10px;background:#fff2f8;color:#a85282;font-weight:800;font-size:12px;
+      min-width:52px;min-height:32px;padding:5px 8px}
+    .password-toggle:focus-visible{outline:3px solid #dd8cba;outline-offset:2px}
+    .auth-reset-link{display:block;border:0;background:none;color:#b46b9b;
+      font-weight:750;font-size:12px;margin:0 auto;padding:8px 10px;min-height:30px}
+    .auth-reset-link:focus-visible{outline:3px solid #dd8cba;outline-offset:2px}
+    .pw-rules{display:flex;flex-wrap:wrap;gap:7px;margin-top:-3px!important}
+    .pw-rules span{display:inline-flex;align-items:center;justify-content:center;gap:4px;
+      background:#fff2f7;color:#a27f93;border:1px solid #f7dfe9;border-radius:30px;
+      padding:6px 10px;font-size:11px;font-weight:800;line-height:1.35;transition:background-color .15s}
+    .pw-rules span:before{content:'○';font-size:12px}
+    .pw-rules span.ok{background:#e9f9f1;color:#2e8f73;border-color:#bdebd3}
+    .pw-rules span.ok:before{content:'✓';font-weight:900}
+    .auth-card #authMessage:not(:empty){background:#fff2f7;border:1px solid #f7d8e7;
+      border-radius:12px;padding:11px 12px;color:#af4f79;line-height:1.6}
+    @media(max-width:430px){.pw-rules{gap:5px}.pw-rules span{padding:5px 8px;font-size:10px}}
+  </style>
 </head>
 <body>
 <div id="toast" role="status" aria-live="polite"></div>
 <section id="authScreen" class="auth-screen">
   <div class="auth-art"><div class="auth-logo-mark"><img src="./balloon-mark.svg" alt=""></div><span class="brand-name">balloon<span class="brand-dot">.</span></span><span class="auth-tagline">給与管理</span><img class="auth-balloons" src="./balloon-friends.svg" alt=""></div>
   <div class="auth-card">
-    <h1>ログイン</h1>
-    
+    <h1 id="authHeading">ログイン</h1>
     <form id="loginForm" class="stack-md">
       <label>メールアドレス<input type="email" id="email" placeholder="mail@example.com" autocomplete="username" required></label>
-      <label>パスワード<input type="password" id="password" placeholder="6文字以上" minlength="6" autocomplete="current-password" required></label>
+      <div class="password-field">
+        <label>パスワード<input type="password" id="password" placeholder="パスワード" autocomplete="current-password" required aria-describedby="passwordRules"></label>
+        <button id="showPasswordBtn" class="password-toggle" type="button" aria-label="パスワードを表示" aria-pressed="false">表示</button>
+      </div>
+      <div id="passwordRules" class="pw-rules hidden" aria-label="パスワード条件">
+        <span data-password-rule="length">8文字以上</span>
+        <span data-password-rule="uppercase">英大文字</span>
+        <span data-password-rule="number">数字</span>
+      </div>
+      <label id="confirmGroup" class="hidden">パスワード（確認）<input type="password" id="confirmPassword" placeholder="もう一度入力" autocomplete="new-password"></label>
       <button class="btn btn-primary btn-full" type="submit" id="loginBtn">ログイン</button>
       <button class="btn btn-secondary btn-full" type="button" id="registerBtn">新規アカウント作成</button>
+      <button type="button" id="resetPasswordBtn" class="auth-reset-link">パスワードを忘れた場合</button>
     </form>
     <p id="authMessage" class="help error" role="alert"></p>
     <div class="demo-divider"><span>または</span></div>
@@ -89,6 +120,7 @@
     <section class="app-panel hidden" id="settingsPanel">
       <div class="page-heading decorated-heading"><h1>設定</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
       <section class="section-card"><h2>標準時給</h2><p class="muted">勤務入力時の初期値</p><form id="settingsForm" class="stack-sm"><label>時給（円）<input id="settingRate" type="number" min="0" max="1000000" step="1" inputmode="numeric" required></label><button type="submit" class="btn btn-primary">標準時給を保存</button></form></section>
+      <section class="section-card" id="accountSecurityCard"><h2>アカウント</h2><p class="muted" id="accountEmail">ログイン中のメールアドレス</p><button type="button" id="accountResetPasswordBtn" class="btn btn-secondary">パスワードを変更</button><p id="accountSecurityMessage" class="help" role="status" aria-live="polite"></p></section>
       <section class="section-card"><h2>計算ルール</h2><div class="rule-list"><div><b>勤務時間</b><span>出退勤 − 中抜け時間。15分単位で切り上げ</span></div><div><b>遅刻</b><span>15分につき300円、端数切り上げ</span></div><div><b>当欠</b><span>平日2,000円／土日祝4,000円、次の勤務日に反映</span></div><div><b>10%控除</b><span>時給＋バック−罰金 の合計から10%控除</span></div><div><b>保存</b><span>時給・メニュー単価は入力時の値を記録</span></div></div></section>
       <section class="section-card"><h2>データについて</h2><p class="muted">アカウント別に保存／デモは端末内に保存</p><button type="button" id="demoReset" class="btn btn-danger hidden">デモの全データを消去</button></section>
       <p class="fineprint legal-note">※罰金・控除などの給与ルールは法令に従ってご確認ください。</p>
@@ -97,6 +129,6 @@
   <button type="button" id="floatingAdd" class="floating-add" aria-label="今日の勤務を追加">＋</button>
   <nav class="bottom-nav" aria-label="メインメニュー"><button type="button" class="nav-item active" data-panel="home"><span>🏠</span>ホーム</button><button type="button" class="nav-item" data-panel="entry"><span>📝</span>日別入力</button><button type="button" class="nav-item" data-panel="menu"><span>🥂</span>メニュー</button><button type="button" class="nav-item" data-panel="settings"><span>⚙️</span>設定</button></nav>
 </div>
-<script type="module" src="./app.js"></script>
+<script type="module" src="./app.js?v=password-reset-v2"></script>
 </body>
 </html>
