@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#E875A9"/><stop offset="0.53" stop-color="#D984C0"/><stop offset="1" stop-color="#A99AEF"/>
+  </linearGradient>
+  <radialGradient id="shine"><stop stop-color="white" stop-opacity=".25"/><stop offset="1" stop-color="white" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="15" stdDeviation="18" flood-color="#825480" flood-opacity=".23"/></filter>
+</defs>
+<rect width="1024" height="1024" fill="url(#bg)"/>
+<circle cx="500" cy="460" r="485" fill="url(#shine)"/>
+<circle cx="975" cy="54" r="196" fill="#FFF7FC" opacity=".11"/>
+<circle cx="-5" cy="1030" r="274" fill="#FFF7FC" opacity=".13"/>
+<!-- Familiar three pastel smiling balloons, kept faithful to the live website -->
+<g transform="translate(93 30) scale(3)"><g fill="none">
+ <defs><linearGradient id="p" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFC0D9"/><stop offset="1" stop-color="#FA91BF"/></linearGradient><linearGradient id="v" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E4D5FF"/><stop offset="1" stop-color="#BEACF6"/></linearGradient><linearGradient id="y" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF0B7"/><stop offset="1" stop-color="#FFD67F"/></linearGradient></defs>
+ <!-- Three balloons -->
+ <ellipse cx="88" cy="86" rx="49" ry="63" fill="url(#p)"/><path d="M88 149l-9 14h18l-9-14Z" fill="#ED85AF"/>
+ <ellipse cx="211" cy="73" rx="48" ry="60" fill="url(#v)"/><path d="M211 134l-9 13h18l-9-13Z" fill="#B8A1EE"/>
+ <ellipse cx="147" cy="122" rx="49" ry="65" fill="url(#y)"/><path d="M147 187l-9 13h18l-9-13Z" fill="#EFBF69"/>
+ <!-- Glossy highlights -->
+ <ellipse cx="68" cy="62" rx="10" ry="24" transform="rotate(19 68 62)" fill="white" opacity=".56"/>
+ <ellipse cx="192" cy="48" rx="9" ry="23" transform="rotate(19 192 48)" fill="white" opacity=".5"/>
+ <ellipse cx="126" cy="98" rx="9" ry="24" transform="rotate(17 126 98)" fill="white" opacity=".58"/>
+ <!-- Tiny cute faces -->
+ <path d="M78 91v3m20-3v3M199 78v3m20-3v3M137 125v3m20-3v3" stroke="#725876" stroke-width="3.5" stroke-linecap="round"/>
+ <path d="M83 103q5 6 11 0M204 91q6 6 11 0M142 137q5 5 11 0" stroke="#725876" stroke-width="2.5" stroke-linecap="round"/>
+ <ellipse cx="71" cy="100" rx="6" ry="3.5" fill="#EC7DA9" opacity=".4"/><ellipse cx="105" cy="100" rx="6" ry="3.5" fill="#EC7DA9" opacity=".4"/>
+ <ellipse cx="190" cy="87" rx="6" ry="3.5" fill="#E191C0" opacity=".38"/><ellipse cx="227" cy="87" rx="6" ry="3.5" fill="#E191C0" opacity=".38"/>
+ <ellipse cx="130" cy="134" rx="6" ry="3.5" fill="#EDAA79" opacity=".44"/><ellipse cx="164" cy="134" rx="6" ry="3.5" fill="#EDAA79" opacity=".44"/>
+</g></g>
+<!-- Simple, large calculator with one clear yen symbol; no small typography -->
+<g filter="url(#shadow)">
+  <rect x="270" y="612" width="484" height="336" rx="78" fill="#FFFAFF"/>
+  <rect x="303" y="648" width="418" height="124" rx="39" fill="#F0E4FA"/>
+  <text x="512" y="751" font-size="126" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" fill="#875B91">¥</text>
+  <rect x="316" y="797" width="111" height="53" rx="22" fill="#F7ABD4"/>
+  <rect x="456" y="797" width="111" height="53" rx="22" fill="#D7C0FA"/>
+  <rect x="596" y="797" width="111" height="53" rx="22" fill="#FFE3A1"/>
+  <rect x="316" y="875" width="111" height="49" rx="22" fill="#D7C0FA"/>
+  <rect x="456" y="875" width="111" height="49" rx="22" fill="#FFE3A1"/>
+  <rect x="596" y="875" width="111" height="49" rx="22" fill="#F7ABD4"/>
+</g>
+<!-- Just two small twinkles -->
+<path d="M126 180c14 0 19-5 19-20 0 15 5 20 19 20-14 0-19 5-19 20 0-15-5-20-19-20Z" fill="#FFF5FE"/>
+<path d="M858 636c10 0 14-4 14-14 0 10 4 14 14 14-10 0-14 4-14 14 0-10-4-14-14-14Z" fill="#FFF5FE"/>
+</svg>
