@@ -328,3 +328,76 @@ body { background:
  .hero-balloons { width:141px; top:25px; right:-16px; }
  .hero-amount { font-size:42px; }
 }
+
+/* v4.1 — iPhone勤務入力：すべての操作要素をカード内に収める。
+   インターフェースのみの修正。給与計算・認証には影響しません。 */
+#entryPanel,
+#entryPanel #dayForm,
+#entryPanel .section-card,
+#entryPanel .section-card > label,
+#entryPanel .form-grid,
+#entryPanel .form-grid > label {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#entryPanel .segmented {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+#entryPanel .segmented > .segment {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding-inline: 8px;
+}
+
+#entryPanel .form-grid {
+  width: 100%;
+  box-sizing: border-box;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+#entryPanel .form-grid > label,
+#entryPanel .form-grid input,
+#entryPanel .form-grid select {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#entryPanel .form-grid input,
+#entryPanel .form-grid select {
+  width: 100%;
+}
+#entryPanel input[type="time"] {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-left: 12px;
+  padding-right: 10px;
+}
+
+@media (max-width: 480px) {
+  /* iOS Safariの時刻ピッカーは幅が広いため、無理に2列にしない */
+  #entryPanel .form-grid:has(#startTime) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  #entryPanel .form-grid:has(#startTime) input[type="time"] {
+    min-height: 54px;
+    border-radius: 15px;
+    font-size: 16px;
+    padding-inline: 15px;
+  }
+  #entryPanel .segmented {
+    margin-top: 17px;
+  }
+  #entryPanel .segmented > .segment {
+    min-height: 49px;
+  }
+}
