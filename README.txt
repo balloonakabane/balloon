@@ -1,18 +1,18 @@
-balloon パスワード直接変更アップデート
+balloon 勤務入力レイアウト修正（v4.1）
 
-GitHubへアップロードするファイルは以下の2個だけです。
-・index.html
-・app.js
+【今回変更したこと】
+・「出勤／当欠」をカードの内側に収める
+・出勤時間／退勤時間をスマホでは縦並びにして、入力欄のはみ出しを防ぐ
+・入力欄の幅が親カードを超えないようにする
+・色、風船イラスト、文字、給与計算、パスワード変更、Firebaseは変更しない
 
-手順：
-1) balloon リポジトリの Code → Add file → Upload files に進む
-2) この2ファイルをアップロードして同名ファイルを置き換える
-3) Commit changes を押す
-4) 公開されたアプリを開き直し、ログイン → 設定 → アカウント → パスワードを変更
-5) 現在のパスワード、新しいパスワード（8文字以上・英大文字・数字あり）、確認を入力
+【GitHubの更新】
+リポジトリのルートにある balloon-theme.css だけを更新してください。
+1) ZIPを展開する
+2) balloon-theme.css をGitHubのballoonリポジトリの同じ場所に上書き
+3) Commit changesで保存
+4) iPhoneのSafariでWebページを再読み込み
 
-メールを使わず、Firebase Authenticationの再認証とupdatePasswordで変更します。
-ログインできなくなった場合の「パスワードを忘れた場合」メール再設定機能は残ります。
-
-※ firebase-config.js、calculator.js、styles.css、balloon-theme.css、アイコン画像、Firestoreルールは変更しません。
-※ 公開中サイトの内容を取得できなかったため、以前作成したパスワード再設定対応版を基にしています。GitHub上で個別に追加した変更がある場合、アップロード前に差分を確認してください。
+※README.txtはアップロード不要です。
+※index.html、app.js、firebase-config.jsは触らないでください。
+※iPhoneでは旧CSSがキャッシュされる場合があります。Safariで再読み込みしても反映しなければ、GitHubのindex.htmlで balloon-theme.css の読み込みURL末尾に ?v=layout41 を付けると更新されます。
