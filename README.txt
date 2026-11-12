@@ -1,8 +1,18 @@
-balloon ホーム画面アイコン差し替え（Ver.8）
+balloon パスワード直接変更アップデート
 
-1. ZIPを解凍
-2. index.html と画像・manifestファイルを GitHub の balloon リポジトリのルートへアップロード（同名は置き換え）
-3. firebase-config.js / app.js / calculator.js 等は変更しない
-4. サイトの反映後、iPhoneの古いホーム画面アイコンを削除してSafariから「ホーム画面に追加」をやり直す
+GitHubへアップロードするファイルは以下の2個だけです。
+・index.html
+・app.js
 
-注: この index.html は Ver.4 の元ファイルにアイコン設定のみ追加したもの。すでに独自の index.html 編集がある場合には上書きせず、head部分のアイコン参照のみ追加する。
+手順：
+1) balloon リポジトリの Code → Add file → Upload files に進む
+2) この2ファイルをアップロードして同名ファイルを置き換える
+3) Commit changes を押す
+4) 公開されたアプリを開き直し、ログイン → 設定 → アカウント → パスワードを変更
+5) 現在のパスワード、新しいパスワード（8文字以上・英大文字・数字あり）、確認を入力
+
+メールを使わず、Firebase Authenticationの再認証とupdatePasswordで変更します。
+ログインできなくなった場合の「パスワードを忘れた場合」メール再設定機能は残ります。
+
+※ firebase-config.js、calculator.js、styles.css、balloon-theme.css、アイコン画像、Firestoreルールは変更しません。
+※ 公開中サイトの内容を取得できなかったため、以前作成したパスワード再設定対応版を基にしています。GitHub上で個別に追加した変更がある場合、アップロード前に差分を確認してください。

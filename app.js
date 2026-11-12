@@ -1,5 +1,5 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js';
-import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
+import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,EmailAuthProvider,reauthenticateWithCredential,updatePassword} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
 import {getFirestore,doc,setDoc,deleteDoc,collection,onSnapshot} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js';
 import {firebaseConfig} from './firebase-config.js';
 import {INITIAL_MENU,initialSettings,yen,unitBack,getWorkedMinutes,roundQuarter,lateFine,officialHoliday,isWeekend,dayName,absenceFine,shiftPay,createLedger,summarizeMonth} from './calculator.js';
@@ -38,6 +38,7 @@ function showModeBadge(){
   $('demoReset').classList.toggle('hidden',state.mode!=='demo');
   $('accountSecurityCard').classList.toggle('hidden',state.mode!=='cloud');
   $('accountEmail').textContent=state.mode==='cloud'?(state.user?.email||'登録メールアドレスを取得できません'):'デモモード';
+  resetChangePasswordForm();
   $('accountSecurityMessage').textContent='';
 }
 function unsubscribe(){state.unsubscribeEntries?.();state.unsubscribeSettings?.();state.unsubscribeEntries=state.unsubscribeSettings=null;}
@@ -363,6 +364,82 @@ async function submitAuth(){
   }catch(e){$('authMessage').textContent=friendlyError(e,registering?'登録できませんでした':'ログインできませんでした');}
   finally{$('loginBtn').disabled=$('registerBtn').disabled=false;}
 }
+// 設定画面内で直接パスワードを変更。既存のFirebase/Firestoreデータは変更しない。
+function resetChangePasswordForm(){
+  const form=$('changePasswordForm');
+  if(!form)return;
+  form.reset();
+  ['currentPassword','changeNewPassword','changeConfirmPassword'].forEach(id=>$(id).type='password');
+  form.classList.add('hidden');
+  const button=$('accountResetPasswordBtn');
+  button.setAttribute('aria-expanded','false');
+  button.textContent='パスワードを変更';
+  $('changePwStatus').textContent='';
+  $('changePwSubmit').disabled=false;
+  document.querySelectorAll('[data-change-pw-rule]').forEach(el=>el.classList.remove('ok'));
+}
+function showChangePasswordForm(show){
+  const form=$('changePasswordForm');
+  if(!show){resetChangePasswordForm();return;}
+  form.classList.remove('hidden');
+  $('accountResetPasswordBtn').textContent='入力欄を閉じる';
+  $('accountResetPasswordBtn').setAttribute('aria-expanded','true');
+  $('accountSecurityMessage').textContent='';
+  $('currentPassword').focus();
+}
+function checkChangedPasswordRules(){
+  const rules=passwordCriteria($('changeNewPassword').value);
+  document.querySelectorAll('[data-change-pw-rule]').forEach(el=>{
+    el.classList.toggle('ok',Boolean(rules[el.dataset.changePwRule]));
+  });
+  return Object.values(rules).every(Boolean);
+}
+async function submitPasswordChange(e){
+  e.preventDefault();
+  if(state.mode!=='cloud'||!auth?.currentUser?.email){
+    $('changePwStatus').textContent='ログイン状態を確認できません。再ログインしてください。';return;
+  }
+  const current=$('currentPassword').value;
+  const updated=$('changeNewPassword').value;
+  const confirmed=$('changeConfirmPassword').value;
+  const status=$('changePwStatus');
+  status.textContent='';
+  if(!current){status.textContent='現在のパスワードを入力してください。';return;}
+  if(!checkChangedPasswordRules()){
+    status.textContent='新しいパスワードは8文字以上・英大文字・数字を含めてください。';return;
+  }
+  if(updated!==confirmed){status.textContent='新しいパスワードが一致しません。';return;}
+  if(current===updated){status.textContent='現在とは異なるパスワードを設定してください。';return;}
+  const user=auth.currentUser;
+  const submit=$('changePwSubmit');
+  submit.disabled=true;submit.textContent='変更中…';
+  try{
+    const credential=EmailAuthProvider.credential(user.email,current);
+    await reauthenticateWithCredential(user,credential);
+    await updatePassword(user,updated);
+    resetChangePasswordForm();
+    $('accountSecurityMessage').textContent='パスワードを変更しました。次回から新しいパスワードでログインしてください。';
+    toast('パスワードを変更しました');
+  }catch(error){
+    console.error('パスワード変更に失敗:',error?.code||'unknown');
+    const messages={
+      'auth/wrong-password':'現在のパスワードが違います。',
+      'auth/invalid-credential':'現在のパスワードが違います。',
+      'auth/weak-password':'新しいパスワードが条件を満たしていません。',
+      'auth/password-does-not-meet-requirements':'新しいパスワードがFirebaseの条件を満たしていません。',
+      'auth/requires-recent-login':'認証を確認できません。再ログインしてからお試しください。',
+      'auth/too-many-requests':'試行回数が多いため、時間をおいてお試しください。',
+      'auth/network-request-failed':'ネットワークに接続できません。通信状況を確認してください。',
+      'auth/user-disabled':'このアカウントは無効になっています。',
+      'auth/user-token-expired':'ログインの有効期限が切れました。再ログインしてください。'
+    };
+    status.textContent=messages[error?.code]||'変更できませんでした。入力内容を確認してもう一度お試しください。';
+    // 誤った現在のパスワードを残さない。
+    $('currentPassword').value='';
+  }finally{
+    submit.disabled=false;submit.textContent='パスワードを変更する';
+  }
+}
 function bind(){
   $('loginForm').addEventListener('submit',e=>{e.preventDefault();submitAuth();});
   $('registerBtn').addEventListener('click',()=>{
@@ -418,20 +495,20 @@ function bind(){
   $('cancelMenuEdit').addEventListener('click',resetMenuForm);
   $('restoreMenu').addEventListener('click',restoreMenu);
   $('settingsForm').addEventListener('submit',saveSettings);
-  $('accountResetPasswordBtn').addEventListener('click',async()=>{
-    const user=auth?.currentUser;
-    const email=user?.email;
-    const message=$('accountSecurityMessage');
-    if(state.mode!=='cloud'||!email){message.textContent='メールアドレスを確認できません。再ログインしてください。';return;}
-    if(!confirm(`${email} にパスワード再設定メールを送信しますか？`))return;
-    const button=$('accountResetPasswordBtn');
-    button.disabled=true;
-    message.textContent='';
-    try{
-      await sendPasswordResetEmail(auth,email);
-      message.textContent='再設定メールを送信しました。メール内のリンクから新しいパスワードを設定してください。';
-    }catch(error){message.textContent=friendlyError(error,'再設定メールを送信できませんでした');}
-    finally{button.disabled=false;}
+  $('accountResetPasswordBtn').addEventListener('click',()=>{
+    if(state.mode!=='cloud')return;
+    showChangePasswordForm($('changePasswordForm').classList.contains('hidden'));
+  });
+  $('changePwCancel').addEventListener('click',()=>showChangePasswordForm(false));
+  $('changePasswordForm').addEventListener('submit',submitPasswordChange);
+  $('changeNewPassword').addEventListener('input',()=>{
+    checkChangedPasswordRules();
+    $('changePwStatus').textContent='';
+  });
+  $('changeConfirmPassword').addEventListener('input',()=>{$('changePwStatus').textContent='';});
+  $('changePwShow').addEventListener('change',()=>{
+    const type=$('changePwShow').checked?'text':'password';
+    ['currentPassword','changeNewPassword','changeConfirmPassword'].forEach(id=>$(id).type=type);
   });
   $('demoReset').addEventListener('click',()=>{if(!confirm('デモで入力した全データを削除しますか？'))return;localStorage.removeItem('paynote_demo_v2');startDemo();toast('デモデータを削除しました');});
 }

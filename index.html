@@ -35,6 +35,19 @@
     .auth-card #authMessage:not(:empty){background:#fff2f7;border:1px solid #f7d8e7;
       border-radius:12px;padding:11px 12px;color:#af4f79;line-height:1.6}
     @media(max-width:430px){.pw-rules{gap:5px}.pw-rules span{padding:5px 8px;font-size:10px}}
+
+    /* 設定 > アカウント：メール不要のパスワード変更フォーム */
+    .change-password-form{margin-top:15px;padding:15px;background:#fff8fc;border:1px solid #f3dfeb;border-radius:18px}
+    .change-password-form label{display:block;font-weight:700;font-size:13px;color:#78566b}
+    .change-password-form input[type=password],.change-password-form input[type=text]{display:block;width:100%;margin-top:7px}
+    .change-password-form .pw-rules{margin:4px 0 10px!important}
+    .change-password-form .pw-rules span{font-size:11px}
+    .change-password-form .change-pw-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .change-password-form .change-pw-actions>.btn{flex:1;min-width:120px}
+    .change-password-form .change-pw-show{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;cursor:pointer}
+    .change-password-form .change-pw-show input{width:auto;margin:0}
+    .change-password-form .change-pw-status{color:#ba4c71;font-size:12px;min-height:17px}
+    @media(max-width:390px){.change-password-form{padding:12px}.change-password-form .change-pw-actions{flex-direction:column}}
   </style>
 </head>
 <body>
@@ -120,7 +133,25 @@
     <section class="app-panel hidden" id="settingsPanel">
       <div class="page-heading decorated-heading"><h1>設定</h1><img src="./balloon-friends.svg" class="heading-art" alt=""></div>
       <section class="section-card"><h2>標準時給</h2><p class="muted">勤務入力時の初期値</p><form id="settingsForm" class="stack-sm"><label>時給（円）<input id="settingRate" type="number" min="0" max="1000000" step="1" inputmode="numeric" required></label><button type="submit" class="btn btn-primary">標準時給を保存</button></form></section>
-      <section class="section-card" id="accountSecurityCard"><h2>アカウント</h2><p class="muted" id="accountEmail">ログイン中のメールアドレス</p><button type="button" id="accountResetPasswordBtn" class="btn btn-secondary">パスワードを変更</button><p id="accountSecurityMessage" class="help" role="status" aria-live="polite"></p></section>
+      <section class="section-card" id="accountSecurityCard">
+        <h2>アカウント</h2>
+        <p class="muted" id="accountEmail">ログイン中のメールアドレス</p>
+        <button type="button" id="accountResetPasswordBtn" class="btn btn-secondary" aria-expanded="false" aria-controls="changePasswordForm">パスワードを変更</button>
+        <p id="accountSecurityMessage" class="help" role="status" aria-live="polite"></p>
+        <form id="changePasswordForm" class="change-password-form stack-sm hidden" autocomplete="on">
+          <label>現在のパスワード<input id="currentPassword" type="password" autocomplete="current-password" required></label>
+          <label>新しいパスワード<input id="changeNewPassword" type="password" autocomplete="new-password" minlength="8" required aria-describedby="changePasswordRequirements"></label>
+          <div id="changePasswordRequirements" class="pw-rules" aria-label="新しいパスワードの条件">
+            <span data-change-pw-rule="length">8文字以上</span>
+            <span data-change-pw-rule="uppercase">英大文字</span>
+            <span data-change-pw-rule="number">数字</span>
+          </div>
+          <label>新しいパスワード（確認）<input id="changeConfirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label class="change-pw-show"><input id="changePwShow" type="checkbox">パスワードを表示</label>
+          <p id="changePwStatus" class="change-pw-status" role="alert" aria-live="polite"></p>
+          <div class="change-pw-actions"><button class="btn btn-primary" id="changePwSubmit" type="submit">パスワードを変更する</button><button class="btn btn-secondary" id="changePwCancel" type="button">キャンセル</button></div>
+        </form>
+      </section>
       <section class="section-card"><h2>計算ルール</h2><div class="rule-list"><div><b>勤務時間</b><span>出退勤 − 中抜け時間。15分単位で切り上げ</span></div><div><b>遅刻</b><span>15分につき300円、端数切り上げ</span></div><div><b>当欠</b><span>平日2,000円／土日祝4,000円、次の勤務日に反映</span></div><div><b>10%控除</b><span>時給＋バック−罰金 の合計から10%控除</span></div><div><b>保存</b><span>時給・メニュー単価は入力時の値を記録</span></div></div></section>
       <section class="section-card"><h2>データについて</h2><p class="muted">アカウント別に保存／デモは端末内に保存</p><button type="button" id="demoReset" class="btn btn-danger hidden">デモの全データを消去</button></section>
       <p class="fineprint legal-note">※罰金・控除などの給与ルールは法令に従ってご確認ください。</p>
@@ -129,6 +160,6 @@
   <button type="button" id="floatingAdd" class="floating-add" aria-label="今日の勤務を追加">＋</button>
   <nav class="bottom-nav" aria-label="メインメニュー"><button type="button" class="nav-item active" data-panel="home"><span>🏠</span>ホーム</button><button type="button" class="nav-item" data-panel="entry"><span>📝</span>日別入力</button><button type="button" class="nav-item" data-panel="menu"><span>🥂</span>メニュー</button><button type="button" class="nav-item" data-panel="settings"><span>⚙️</span>設定</button></nav>
 </div>
-<script type="module" src="./app.js?v=password-reset-v2"></script>
+<script type="module" src="./app.js?v=password-direct-v3"></script>
 </body>
 </html>
